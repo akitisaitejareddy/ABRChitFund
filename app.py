@@ -4,6 +4,9 @@ from config import Config
 
 from database import db
 
+from flask_migrate import Migrate
+
+import models
 
 
 def create_app():
@@ -20,6 +23,10 @@ def create_app():
     # Initialize database
 
     db.init_app(app)
+    
+    # Initialize migrations
+    
+    Migrate(app, db)
 
 
 
