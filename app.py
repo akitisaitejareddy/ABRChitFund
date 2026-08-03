@@ -8,56 +8,45 @@ from flask_migrate import Migrate
 
 import models
 
+from routes.auth import auth
+
+
 
 def create_app():
 
     app = Flask(__name__)
 
-
-    # Load configuration
-
     app.config.from_object(Config)
 
 
-
-    # Initialize database
+    # Initialize Database
 
     db.init_app(app)
-    
-    # Initialize migrations
-    
+
+
+    # Initialize Migration
+
     Migrate(app, db)
 
+
+    # Register Routes
+
+    app.register_blueprint(auth)
 
 
     @app.route("/")
     def home():
 
-        return """
-
-        <h1>
-        ABR Chit Fund
-        </h1>
-
-        <p>
-        Application Running Successfully
-        </p>
-
-        """
-
+        return "Dashboard Coming Soon"
 
 
     return app
 
 
 
-
-
-app = create_app()
-
-
-
 if __name__ == "__main__":
+
+    app = create_app()
 
     app.run(
         debug=True
