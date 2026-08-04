@@ -1,9 +1,14 @@
+from flask_login import UserMixin
+
 from database import db
 
 from models.base import BaseModel
 
 
-class User(BaseModel):
+class User(
+    BaseModel,
+    UserMixin
+):
 
     __tablename__ = "users"
 
@@ -49,6 +54,13 @@ class User(BaseModel):
         "Role",
         back_populates="users"
     )
+
+
+    def get_id(self):
+
+        return str(
+            self.id
+        )
 
 
     def __repr__(self):

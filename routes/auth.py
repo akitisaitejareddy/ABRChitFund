@@ -1,7 +1,20 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash
+from flask import (
+    Blueprint,
+    render_template,
+    request,
+    redirect,
+    url_for,
+    flash
+)
 
-from models.user import User
-from utils.password import check_password
+from flask_login import (
+    login_user,
+    logout_user,
+    current_user,
+    login_required
+)
+
+from services.auth_service import authenticate_user
 
 
 auth = Blueprint(
@@ -10,24 +23,42 @@ auth = Blueprint(
 )
 
 
-@auth.route("/login", methods=["GET", "POST"])
+
+@auth.route(
+    "/login",
+    methods=["GET", "POST"]
+)
 def login():
+
+    if current_user.is_authenticated:
+
+        return redirect(
+            url_for("home")
+        )
+
 
     if request.method == "POST":
 
-        username = request.form.get("username")
-        password = request.form.get("password")
+        username = request.form.get(
+            "username"
+        )
+
+        password = request.form.get(
+            "password"
+        )
 
 
-        user = User.query.filter_by(
-            username=username
-        ).first()
+        user = authenticate_user(
+            username,
+            password
+        )
 
 
         if not user:
 
             flash(
-                "Invalid username or password"
+                "Invalid username or password",
+                "danger"
             )
 
             return redirect(
@@ -35,29 +66,15 @@ def login():
             )
 
 
-        if not check_password(
-            password,
-            user.password_hash
-        ):
-
-            flash(
-                "Invalid username or password"
-            )
-
-            return redirect(
-                url_for("auth.login")
-            )
+        login_user(
+            user
+        )
 
 
-        if user.approval_status != "APPROVED":
-
-            flash(
-                "Your account is waiting for admin approval"
-            )
-
-            return redirect(
-                url_for("auth.login")
-            )
+        flash(
+            "Login successful",
+            "success"
+        )
 
 
         return redirect(
@@ -67,4 +84,25 @@ def login():
 
     return render_template(
         "login.html"
+    )
+
+
+
+@auth.route(
+    "/logout"
+)
+@login_required
+def logout():
+
+    logout_user()
+
+
+    flash(
+        "You have been logged out.",
+        "success"
+    )
+
+
+    return redirect(
+        url_for("auth.login")
     )

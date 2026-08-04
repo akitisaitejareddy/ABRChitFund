@@ -1,28 +1,61 @@
 import bcrypt
 
 
+
 def hash_password(password):
 
-    password_bytes = password.encode("utf-8")
+    if not password:
+
+        raise ValueError(
+            "Password cannot be empty"
+        )
+
+
+    password_bytes = password.encode(
+        "utf-8"
+    )
+
 
     salt = bcrypt.gensalt()
 
-    hashed = bcrypt.hashpw(
+
+    hashed_password = bcrypt.hashpw(
         password_bytes,
         salt
     )
 
-    return hashed.decode("utf-8")
+
+    return hashed_password.decode(
+        "utf-8"
+    )
 
 
 
 def check_password(password, hashed_password):
 
-    password_bytes = password.encode("utf-8")
+    if not password or not hashed_password:
 
-    hashed_bytes = hashed_password.encode("utf-8")
+        return False
 
-    return bcrypt.checkpw(
-        password_bytes,
-        hashed_bytes
-    )
+
+    try:
+
+        password_bytes = password.encode(
+            "utf-8"
+        )
+
+
+        hashed_bytes = hashed_password.encode(
+            "utf-8"
+        )
+
+
+        return bcrypt.checkpw(
+            password_bytes,
+            hashed_bytes
+        )
+
+
+    except Exception:
+
+        return False
