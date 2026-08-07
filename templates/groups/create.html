@@ -1,0 +1,222 @@
+{% extends "layouts/base.html" %}
+
+
+
+{% block title %}
+
+Create Group | ABR Chit Fund ERP
+
+{% endblock %}
+
+
+
+
+
+{% block content %}
+
+
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+
+
+<h2 class="fw-bold">
+
+Create Chit Group
+
+</h2>
+
+
+
+<a href="{{ url_for('groups.list_groups') }}"
+class="btn btn-secondary">
+
+
+Back to Groups
+
+
+</a>
+
+
+
+</div>
+
+
+
+
+
+<div class="erp-card">
+
+
+
+<form method="POST">
+
+
+
+
+
+<div class="mb-3">
+
+
+<label class="form-label">
+
+Group Name
+
+</label>
+
+
+
+<input
+type="text"
+class="form-control"
+name="name"
+required
+>
+
+
+
+</div>
+
+
+
+
+
+
+<div class="mb-3">
+
+
+<label class="form-label">
+
+Description
+
+</label>
+
+
+
+<textarea
+class="form-control"
+name="description"
+rows="3"
+></textarea>
+
+
+
+</div>
+
+
+
+
+
+
+
+<div class="mb-3">
+
+
+<label class="form-label">
+
+Group Amount
+
+</label>
+
+
+
+<input
+type="number"
+class="form-control"
+name="group_amount"
+placeholder="Example: 1000000"
+required
+>
+
+
+
+</div>
+
+
+
+
+
+
+
+<div class="mb-3">
+
+
+<label class="form-label">
+
+Duration Months
+
+</label>
+
+
+
+<input
+type="number"
+class="form-control"
+name="duration_months"
+placeholder="Example: 30"
+required
+>
+
+
+
+</div>
+
+
+
+
+
+
+
+<div class="mb-3">
+
+
+<label class="form-label">
+
+Start Date
+
+</label>
+
+
+
+<input
+type="date"
+class="form-control"
+name="start_date"
+required
+>
+
+
+
+</div>
+
+
+
+
+
+
+
+
+<button type="submit"
+class="btn btn-primary">
+
+
+<i class="bi bi-check-circle"></i>
+
+Create Group
+
+
+</button>
+
+
+
+
+
+</form>
+
+
+
+</div>
+
+
+
+
+{% endblock %}

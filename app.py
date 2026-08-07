@@ -1,56 +1,83 @@
 from flask import Flask
-from flask_migrate import Migrate
-from flask_login import LoginManager
 
 from config import Config
+
 from database import db
 
 import models
 
-from models.user import User
+from flask_migrate import Migrate
+
+from flask_login import LoginManager
 
 from routes.auth import auth
 
+from routes.dashboard import dashboard
 
-migrate = Migrate()
+from routes.groups import groups
+
+from routes.payments import payments
+
+from routes.customers import customers
+
 
 login_manager = LoginManager()
 
 
+
+
+
 def create_app():
+
 
     app = Flask(__name__)
 
-    app.config.from_object(Config)
 
 
-    # -----------------------------
-    # Initialize Database
-    # -----------------------------
+    # Configuration
 
-    db.init_app(app)
+    app.config.from_object(
+        Config
+    )
 
 
-    # -----------------------------
-    # Initialize Migration
-    # -----------------------------
 
-    migrate.init_app(
+    # Database initialization
+
+    db.init_app(
+        app
+    )
+
+
+
+    # Migration
+
+    Migrate(
         app,
         db
     )
 
 
-    # -----------------------------
-    # Initialize Login Manager
-    # -----------------------------
+
+    # Login Manager
 
     login_manager.init_app(
         app
     )
 
 
-    login_manager.login_view = "auth.login"
+    login_manager.login_view = (
+        "auth.login"
+    )
+
+
+
+
+    # Load logged-in user
+
+
+    from models.user import User
+
 
 
     @login_manager.user_loader
@@ -61,35 +88,58 @@ def create_app():
         )
 
 
-    # -----------------------------
-    # Register Blueprints
-    # -----------------------------
+
+
+    # Register blueprints
+
 
     app.register_blueprint(
         auth
     )
 
 
-    # -----------------------------
-    # Home Route
-    # -----------------------------
+    app.register_blueprint(
+        dashboard
+    )
+
+
+    app.register_blueprint(
+        groups
+    )
+
+
+    app.register_blueprint(
+        payments
+    )
+
+    app.register_blueprint(
+        customers
+    )
+
+
 
     @app.route("/")
     def home():
 
-        return """
-        <h1>ABR Chit Fund</h1>
-        <p>Application Running Successfully</p>
-        """
+        return (
+            "ABR Chit Fund Application Running Successfully"
+        )
+
+
 
 
     return app
 
 
 
+
+
+
 if __name__ == "__main__":
 
+
     app = create_app()
+
 
     app.run(
         debug=True

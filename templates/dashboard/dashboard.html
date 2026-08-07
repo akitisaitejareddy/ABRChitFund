@@ -1,0 +1,438 @@
+{% extends "layouts/base.html" %}
+
+
+{% block title %}
+
+Dashboard | ABR Chit Fund ERP
+
+{% endblock %}
+
+
+
+{% block content %}
+
+
+<!-- PAGE HEADER -->
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+
+
+    <div>
+
+        <h2 class="fw-bold">
+
+            Good Morning, {{ current_user.username }} 👋
+
+        </h2>
+
+
+        <p class="text-muted">
+
+            Here's what's happening with your chit fund operations today.
+
+        </p>
+
+
+    </div>
+
+
+
+    <div>
+
+        <a href="{{ url_for('payments.create') }}"
+           class="btn btn-primary">
+
+            <i class="bi bi-plus-circle"></i>
+
+            New Collection
+
+        </a>
+
+
+    </div>
+
+
+</div>
+
+
+
+
+
+<!-- KPI CARDS -->
+
+<div class="row g-4">
+
+
+    <div class="col-xl-3 col-md-6">
+
+        {% set title="Total Customers" %}
+        {% set value=total_customers %}
+        {% set icon="bi bi-people" %}
+        {% set color="icon-blue" %}
+
+        {% include "components/stat_card.html" %}
+
+    </div>
+
+
+
+
+    <div class="col-xl-3 col-md-6">
+
+        {% set title="Active Groups" %}
+        {% set value=active_groups %}
+        {% set icon="bi bi-diagram-3" %}
+        {% set color="icon-green" %}
+
+        {% include "components/stat_card.html" %}
+
+    </div>
+
+
+
+
+    <div class="col-xl-3 col-md-6">
+
+        {% set title="Today's Collection" %}
+        {% set value="₹" + "{:,.0f}".format(today_collection) %}
+        {% set icon="bi bi-cash-stack" %}
+        {% set color="icon-orange" %}
+
+        {% include "components/stat_card.html" %}
+
+    </div>
+
+
+
+
+    <div class="col-xl-3 col-md-6">
+
+        {% set title="Pending Payments" %}
+        {% set value=pending_payments %}
+        {% set icon="bi bi-clock-history" %}
+        {% set color="icon-red" %}
+
+        {% include "components/stat_card.html" %}
+
+    </div>
+
+
+</div>
+
+
+
+
+
+
+
+
+<!-- SECOND ROW -->
+
+<div class="row mt-4 g-4">
+
+
+
+    <!-- RECENT PAYMENTS -->
+
+
+    <div class="col-lg-8">
+
+
+        <div class="erp-card">
+
+
+            <div class="d-flex justify-content-between mb-3">
+
+
+                <h5 class="fw-bold">
+
+                    Recent Payments
+
+                </h5>
+
+
+
+                <a href="{{ url_for('payments.list_payments') }}">
+
+                    View All
+
+                </a>
+
+
+            </div>
+
+
+
+
+
+            <div class="table-responsive">
+
+
+                <table class="table align-middle">
+
+
+                    <thead>
+
+                    <tr>
+
+                        <th>
+                            Receipt
+                        </th>
+
+
+                        <th>
+                            Customer
+                        </th>
+
+
+                        <th>
+                            Group
+                        </th>
+
+
+                        <th>
+                            Installment
+                        </th>
+
+
+                        <th>
+                            Amount
+                        </th>
+
+
+                        <th>
+                            Date
+                        </th>
+
+
+                    </tr>
+
+
+                    </thead>
+
+
+
+
+
+                    <tbody>
+
+
+                    {% if recent_payments %}
+
+
+
+                        {% for payment in recent_payments %}
+
+
+                        <tr>
+
+
+                            <td>
+                                {{ payment.receipt_number }}
+                            </td>
+
+
+
+
+                            <td>
+
+                            {% if payment.installment 
+                                and payment.installment.membership
+                                and payment.installment.membership.customer %}
+
+
+                                {{ payment.installment.membership.customer.name }}
+
+
+                            {% else %}
+
+                                -
+
+                            {% endif %}
+
+
+                            </td>
+
+
+
+
+                            <td>
+
+                            {% if payment.installment
+                                and payment.installment.membership
+                                and payment.installment.membership.chit_group %}
+
+
+                                {{ payment.installment.membership.chit_group.name }}
+
+
+                            {% else %}
+
+                                -
+
+                            {% endif %}
+
+
+                            </td>
+
+
+
+
+                            <td>
+
+                            {% if payment.installment %}
+
+                                Month {{ payment.installment.installment_number }}
+
+                            {% else %}
+
+                                -
+
+                            {% endif %}
+
+
+                            </td>
+
+
+
+
+                            <td>
+
+                                ₹{{ "{:,.0f}".format(payment.amount) }}
+
+                            </td>
+
+
+
+
+                            <td>
+
+                                {{ payment.payment_date.strftime('%d-%b-%Y') }}
+
+                            </td>
+
+
+                        </tr>
+
+
+                        {% endfor %}
+
+
+
+                    {% else %}
+
+
+
+                        <tr>
+
+                            <td colspan="6"
+                                class="text-center text-muted">
+
+                                No payments available
+
+                            </td>
+
+
+                        </tr>
+
+
+                    {% endif %}
+
+
+
+                    </tbody>
+
+
+                </table>
+
+
+            </div>
+
+
+        </div>
+
+
+    </div>
+
+
+
+
+
+
+
+
+    <!-- QUICK ACTIONS -->
+
+
+    <div class="col-lg-4">
+
+
+        <div class="erp-card">
+
+
+            <h5 class="fw-bold mb-3">
+
+                Quick Actions
+
+            </h5>
+
+
+
+
+            <a href="{{ url_for('customers.create') }}"
+               class="btn btn-outline-primary w-100 mb-3">
+
+
+                <i class="bi bi-person-plus"></i>
+
+                Add Customer
+
+
+            </a>
+
+
+
+
+
+            <a href="{{ url_for('payments.create') }}"
+               class="btn btn-outline-success w-100 mb-3">
+
+
+                <i class="bi bi-cash"></i>
+
+                Collect Payment
+
+
+            </a>
+
+
+
+
+
+            <a href="{{ url_for('groups.create') }}"
+               class="btn btn-outline-warning w-100">
+
+
+                <i class="bi bi-diagram-3"></i>
+
+                Create Group
+
+
+            </a>
+
+
+
+        </div>
+
+
+    </div>
+
+
+
+</div>
+
+
+
+
+
+{% endblock %}

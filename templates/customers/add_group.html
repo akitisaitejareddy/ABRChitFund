@@ -1,0 +1,261 @@
+{% extends "layouts/base.html" %}
+
+
+{% block title %}
+
+Add Group Membership | ABR Chit Fund ERP
+
+{% endblock %}
+
+
+
+{% block content %}
+
+
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+
+
+    <div>
+
+        <h2 class="fw-bold">
+
+            Add Customer To New Group
+
+        </h2>
+
+
+        <p class="text-muted">
+
+            Assign {{ customer.name }} to an additional chit group.
+
+        </p>
+
+
+    </div>
+
+
+
+
+    <a href="{{ url_for('customers.list_customers') }}"
+
+       class="btn btn-outline-secondary">
+
+
+        <i class="bi bi-arrow-left"></i>
+
+        Back
+
+
+    </a>
+
+
+</div>
+
+
+
+
+
+
+<div class="erp-card">
+
+
+
+<form method="POST">
+
+
+
+
+
+<div class="mb-3">
+
+
+<label class="form-label">
+
+Customer Name
+
+</label>
+
+
+<input
+
+type="text"
+
+class="form-control"
+
+value="{{ customer.name }}"
+
+readonly
+
+
+>
+
+
+</div>
+
+
+
+
+
+
+<div class="mb-3">
+
+
+<label class="form-label">
+
+Select Chit Group
+
+</label>
+
+
+
+<select
+
+class="form-select"
+
+name="group_id"
+
+required
+
+
+>
+
+
+<option value="">
+
+Select Group
+
+</option>
+
+
+
+
+
+{% for group in groups %}
+
+
+
+<option value="{{ group.id }}">
+
+
+{{ group.name }}
+
+-
+
+₹{{ "{:,.0f}".format(group.monthly_installment) }}/Month
+
+
+</option>
+
+
+
+{% endfor %}
+
+
+
+</select>
+
+
+</div>
+
+
+
+
+
+
+
+<div class="mb-3">
+
+
+<label class="form-label">
+
+Joining Date
+
+</label>
+
+
+
+<input
+
+type="date"
+
+class="form-control"
+
+name="joining_date"
+
+required
+
+
+>
+
+
+</div>
+
+
+
+
+
+
+
+<div class="mt-4">
+
+
+
+<button
+
+type="submit"
+
+class="btn btn-success"
+
+
+>
+
+
+<i class="bi bi-plus-circle"></i>
+
+
+Add Membership
+
+
+</button>
+
+
+
+
+
+
+<a
+
+href="{{ url_for('customers.list_customers') }}"
+
+class="btn btn-secondary"
+
+
+>
+
+
+Cancel
+
+
+</a>
+
+
+
+
+</div>
+
+
+
+
+
+</form>
+
+
+
+</div>
+
+
+
+
+
+{% endblock %}

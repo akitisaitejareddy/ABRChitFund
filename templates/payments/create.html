@@ -1,0 +1,278 @@
+{% extends "layouts/base.html" %}
+
+
+
+{% block title %}
+
+Collect Payment
+
+{% endblock %}
+
+
+
+
+
+{% block content %}
+
+
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+
+
+<h2 class="fw-bold">
+
+Collect Payment
+
+</h2>
+
+
+
+<a href="{{ url_for('payments.list_payments') }}"
+class="btn btn-secondary">
+
+Back
+
+</a>
+
+
+</div>
+
+
+
+
+
+<div class="erp-card">
+
+
+
+<form method="POST">
+
+
+
+
+
+<div class="mb-3">
+
+
+<label class="form-label">
+
+Select Installment
+
+</label>
+
+
+<select
+class="form-control"
+name="installment_id"
+required
+>
+
+
+
+<option value="">
+
+-- Select Installment --
+
+</option>
+
+
+
+
+{% for installment in installments %}
+
+
+
+<option value="{{ installment.id }}">
+
+
+{{ installment.installment_number }}
+
+-
+
+{{ installment.membership.customer.name }}
+
+-
+
+₹{{ installment.amount }}
+
+
+</option>
+
+
+
+{% endfor %}
+
+
+
+</select>
+
+
+</div>
+
+
+
+
+
+
+
+<div class="mb-3">
+
+
+<label class="form-label">
+
+Payment Date
+
+</label>
+
+
+<input
+type="date"
+class="form-control"
+name="payment_date"
+required
+>
+
+
+</div>
+
+
+
+
+
+
+
+<div class="mb-3">
+
+
+<label class="form-label">
+
+Payment Method
+
+</label>
+
+
+
+<select
+class="form-control"
+name="payment_method"
+required
+>
+
+
+<option value="">
+
+Select Method
+
+</option>
+
+
+<option value="CASH">
+
+Cash
+
+</option>
+
+
+<option value="UPI">
+
+UPI
+
+</option>
+
+
+<option value="BANK">
+
+Bank Transfer
+
+</option>
+
+
+<option value="CHEQUE">
+
+Cheque
+
+</option>
+
+
+</select>
+
+
+</div>
+
+
+
+
+
+
+
+<div class="mb-3">
+
+
+<label class="form-label">
+
+Transaction Reference
+
+</label>
+
+
+<input
+type="text"
+class="form-control"
+name="transaction_reference"
+>
+
+
+</div>
+
+
+
+
+
+
+
+<div class="mb-3">
+
+
+<label class="form-label">
+
+Notes
+
+</label>
+
+
+<textarea
+class="form-control"
+name="notes"
+></textarea>
+
+
+</div>
+
+
+
+
+
+
+<button class="btn btn-primary">
+
+
+<i class="bi bi-cash"></i>
+
+Save Payment
+
+
+</button>
+
+
+
+
+
+</form>
+
+
+</div>
+
+
+
+
+{% endblock %}

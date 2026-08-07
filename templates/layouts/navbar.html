@@ -1,0 +1,73 @@
+<nav class="navbar">
+
+
+    <div>
+        
+    </div>
+
+
+
+    <div class="user-area">
+
+
+        <i class="bi bi-bell"></i>
+
+
+
+        <div class="dropdown">
+
+
+            <button 
+            class="btn dropdown-toggle"
+            data-bs-toggle="dropdown">
+
+
+                <i class="bi bi-person-circle"></i>
+
+                {{ current_user.username }}
+
+
+            </button>
+
+
+
+            <ul class="dropdown-menu">
+
+
+                <li>
+
+                    <a class="dropdown-item"
+                    href="#">
+
+                    Profile
+
+                    </a>
+
+                </li>
+
+
+
+                <li>
+
+                    <a class="dropdown-item"
+                    href="{{ url_for('auth.logout') }}">
+
+                    Logout
+
+                    </a>
+
+                </li>
+
+
+            </ul>
+
+
+
+        </div>
+
+
+
+    </div>
+
+
+</nav>

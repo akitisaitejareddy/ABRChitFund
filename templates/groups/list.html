@@ -1,0 +1,243 @@
+{% extends "layouts/base.html" %}
+
+
+{% block title %}
+
+Groups | ABR Chit Fund ERP
+
+{% endblock %}
+
+
+
+
+{% block content %}
+
+
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+
+
+    <div>
+
+        <h2 class="fw-bold">
+
+            Chit Groups
+
+        </h2>
+
+
+        <p class="text-muted">
+
+            Manage all chit fund groups
+
+        </p>
+
+
+    </div>
+
+
+
+    <a href="{{ url_for('groups.create') }}"
+       class="btn btn-primary">
+
+
+        <i class="bi bi-plus-circle"></i>
+
+        Create New Group
+
+
+    </a>
+
+
+
+</div>
+
+
+
+
+
+
+<div class="erp-card">
+
+
+<table class="table align-middle">
+
+
+<thead>
+
+
+<tr>
+
+
+<th>
+Group Name
+</th>
+
+
+<th>
+Description
+</th>
+
+
+<th>
+Amount
+</th>
+
+
+<th>
+Duration
+</th>
+
+
+<th>
+Monthly Installment
+</th>
+
+
+<th>
+Start Date
+</th>
+
+
+<th>
+Status
+</th>
+
+
+</tr>
+
+
+</thead>
+
+
+
+
+<tbody>
+
+
+
+{% if groups %}
+
+
+
+{% for group in groups %}
+
+
+
+<tr>
+
+
+
+<td>
+
+{{ group.name }}
+
+</td>
+
+
+
+
+<td>
+
+{{ group.description or '-' }}
+
+</td>
+
+
+
+
+<td>
+
+₹{{ "{:,.0f}".format(group.group_amount) }}
+
+</td>
+
+
+
+
+<td>
+
+{{ group.duration_months }} Months
+
+</td>
+
+
+
+
+<td>
+
+₹{{ "{:,.0f}".format(group.monthly_installment) }}
+
+</td>
+
+
+
+
+<td>
+
+{{ group.start_date.strftime('%d-%b-%Y') }}
+
+</td>
+
+
+
+
+<td>
+
+<span class="badge bg-success">
+
+{{ group.status }}
+
+</span>
+
+</td>
+
+
+
+</tr>
+
+
+
+{% endfor %}
+
+
+
+{% else %}
+
+
+
+<tr>
+
+
+<td colspan="7"
+class="text-center text-muted">
+
+
+No chit groups available
+
+
+</td>
+
+
+</tr>
+
+
+
+{% endif %}
+
+
+
+
+</tbody>
+
+
+
+</table>
+
+
+</div>
+
+
+
+
+{% endblock %}
