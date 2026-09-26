@@ -141,6 +141,13 @@ def create_app():
     def home():
         return redirect(url_for("auth.login"))
 
+    with app.app_context():
+        try:
+            db.create_all()
+            from services.create_admin import create_admin_user
+            create_admin_user()
+        except Exception:
+            pass
     return app
 
 
