@@ -1,4 +1,11 @@
 import os
+
+basedir = os.path.abspath(os.path.dirname(__file__))
+if os.environ.get('VERCEL'):
+    db_path = '/tmp/abrchitfund.db'
+else:
+    db_path = os.path.join(basedir, 'instance', 'abrchitfund.db')
+
 from dotenv import load_dotenv
 
 
