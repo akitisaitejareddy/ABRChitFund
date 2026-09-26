@@ -1,3 +1,4 @@
+import os
 
 from flask import Flask, redirect, url_for
 
@@ -39,7 +40,10 @@ login_manager = LoginManager()
 
 def create_app():
 
-    app = Flask(
+    instance_path = "/tmp" if os.environ.get("VERCEL") else None
+    app = Flask(__name__, instance_path=instance_path)
+    if os.environ.get("VERCEL"):
+        app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL", "sqlite:////tmp/abrchitfund.db")
         __name__
     )
 

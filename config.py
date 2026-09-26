@@ -1,4 +1,7 @@
 import os
+if os.environ.get("VERCEL"):
+    os.environ["DATABASE_URL"] = os.environ.get("DATABASE_URL", "sqlite:////tmp/abrchitfund.db")
+import os
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 if os.environ.get('VERCEL'):
