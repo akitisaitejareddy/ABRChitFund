@@ -63,11 +63,13 @@ Dashboard | ABR Chit Fund ERP
 <div class="row g-4">
 
 
+    <!-- Total Collection -->
+
     <div class="col-xl-3 col-md-6">
 
-        {% set title="Total Customers" %}
-        {% set value=total_customers %}
-        {% set icon="bi bi-people" %}
+        {% set title="Total Collection" %}
+        {% set value="₹" + "{:,.0f}".format(total_collection) %}
+        {% set icon="bi bi-cash-stack" %}
         {% set color="icon-blue" %}
 
         {% include "components/stat_card.html" %}
@@ -77,11 +79,14 @@ Dashboard | ABR Chit Fund ERP
 
 
 
+
+    <!-- Total Bid Payments -->
+
     <div class="col-xl-3 col-md-6">
 
-        {% set title="Active Groups" %}
-        {% set value=active_groups %}
-        {% set icon="bi bi-diagram-3" %}
+        {% set title="Total Bid Payments" %}
+        {% set value="₹" + "{:,.0f}".format(total_bid_payments) %}
+        {% set icon="bi bi-trophy" %}
         {% set color="icon-green" %}
 
         {% include "components/stat_card.html" %}
@@ -91,11 +96,14 @@ Dashboard | ABR Chit Fund ERP
 
 
 
+
+    <!-- Today's Collection -->
+
     <div class="col-xl-3 col-md-6">
 
         {% set title="Today's Collection" %}
         {% set value="₹" + "{:,.0f}".format(today_collection) %}
-        {% set icon="bi bi-cash-stack" %}
+        {% set icon="bi bi-calendar-check" %}
         {% set color="icon-orange" %}
 
         {% include "components/stat_card.html" %}
@@ -105,10 +113,13 @@ Dashboard | ABR Chit Fund ERP
 
 
 
+
+    <!-- Total Pending Amount -->
+
     <div class="col-xl-3 col-md-6">
 
-        {% set title="Pending Payments" %}
-        {% set value=pending_payments %}
+        {% set title="Total Pending Amount" %}
+        {% set value="₹" + "{:,.0f}".format(total_pending_amount) %}
         {% set icon="bi bi-clock-history" %}
         {% set color="icon-red" %}
 
@@ -236,13 +247,9 @@ Dashboard | ABR Chit Fund ERP
 
                             <td>
 
-                            {% if payment.installment 
-                                and payment.installment.membership
-                                and payment.installment.membership.customer %}
+                            {% if payment.customer %}
 
-
-                                {{ payment.installment.membership.customer.name }}
-
+                                {{ payment.customer.name }}
 
                             {% else %}
 
@@ -252,18 +259,20 @@ Dashboard | ABR Chit Fund ERP
 
 
                             </td>
+
 
 
 
 
                             <td>
 
-                            {% if payment.installment
-                                and payment.installment.membership
-                                and payment.installment.membership.chit_group %}
+                            {% if payment.allocations
+                                and payment.allocations[0].installment
+                                and payment.allocations[0].installment.membership
+                                and payment.allocations[0].installment.membership.chit_group %}
 
 
-                                {{ payment.installment.membership.chit_group.name }}
+                                {{ payment.allocations[0].installment.membership.chit_group.name }}
 
 
                             {% else %}
@@ -274,15 +283,16 @@ Dashboard | ABR Chit Fund ERP
 
 
                             </td>
+
 
 
 
 
                             <td>
 
-                            {% if payment.installment %}
+                            {% if payment.allocations %}
 
-                                Month {{ payment.installment.installment_number }}
+                                Month {{ payment.allocations[0].installment.installment_number }}
 
                             {% else %}
 
@@ -292,6 +302,7 @@ Dashboard | ABR Chit Fund ERP
 
 
                             </td>
+
 
 
 
@@ -301,6 +312,7 @@ Dashboard | ABR Chit Fund ERP
                                 ₹{{ "{:,.0f}".format(payment.amount) }}
 
                             </td>
+
 
 
 

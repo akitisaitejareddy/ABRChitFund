@@ -23,7 +23,7 @@ def upgrade():
     sa.Column('description', sa.String(length=255), nullable=True),
     sa.Column('group_amount', sa.Float(), nullable=False),
     sa.Column('duration_months', sa.Integer(), nullable=False),
-    sa.Column('monthly_installment', sa.Float(), nullable=False),
+    sa.Column('installment_amount',sa.Float(),nullable=False),
     sa.Column('start_date', sa.Date(), nullable=False),
     sa.Column('status', sa.String(length=20), nullable=False),
     sa.Column('id', sa.Integer(), nullable=False),

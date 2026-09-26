@@ -23,7 +23,6 @@ auth = Blueprint(
 )
 
 
-
 @auth.route(
     "/login",
     methods=["GET", "POST"]
@@ -33,7 +32,9 @@ def login():
     if current_user.is_authenticated:
 
         return redirect(
-            url_for("dashboard.dashboard_home")
+            url_for(
+                "dashboard.dashboard_home"
+            )
         )
 
 
@@ -62,7 +63,9 @@ def login():
             )
 
             return redirect(
-                url_for("auth.login")
+                url_for(
+                    "auth.login"
+                )
             )
 
 
@@ -78,7 +81,9 @@ def login():
 
 
         return redirect(
-            url_for("home")
+            url_for(
+                "dashboard.dashboard_home"
+            )
         )
 
 
@@ -104,5 +109,7 @@ def logout():
 
 
     return redirect(
-        url_for("auth.login")
+        url_for(
+            "auth.login"
+        )
     )

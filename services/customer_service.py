@@ -1,22 +1,23 @@
+
 from datetime import datetime
-from dateutil.relativedelta import relativedelta
 
 from database import db
 
 from models.customer import Customer
 from models.group import ChitGroup
 from models.membership import Membership
-from models.installment import Installment
 
 
 
 # -------------------------------------------------
-# Get All Customers
+# Get All Active Customers
 # -------------------------------------------------
 
 def get_all_customers():
 
-    return Customer.query.order_by(
+    return Customer.query.filter_by(
+        is_active=True
+    ).order_by(
         Customer.created_at.desc()
     ).all()
 
@@ -41,7 +42,6 @@ def get_customer(customer_id):
 
 def create_customer(data):
 
-
     name = (
         data.get("name") or ""
     ).strip()
@@ -65,7 +65,6 @@ def create_customer(data):
     identity_number = (
         data.get("identity_number") or ""
     ).strip()
-
 
 
     group_ids = data.get(
@@ -109,24 +108,40 @@ def create_customer(data):
 
 
 
-    if Customer.query.filter_by(
-        mobile=mobile
-    ).first():
+    # ---------------------------------------------
+    # Active Mobile Duplicate Check
+    # ---------------------------------------------
+
+    existing_mobile = Customer.query.filter_by(
+        mobile=mobile,
+        is_active=True
+    ).first()
+
+
+    if existing_mobile:
 
         raise ValueError(
-            "Mobile number already exists."
+            "Mobile number already exists for an active customer."
         )
 
 
 
+    # ---------------------------------------------
+    # Active Email Duplicate Check
+    # ---------------------------------------------
+
     if email:
 
-        if Customer.query.filter_by(
-            email=email
-        ).first():
+        existing_email = Customer.query.filter_by(
+            email=email,
+            is_active=True
+        ).first()
+
+
+        if existing_email:
 
             raise ValueError(
-                "Email already exists."
+                "Email already exists for an active customer."
             )
 
 
@@ -140,7 +155,6 @@ def create_customer(data):
 
     try:
 
-
         customer = Customer(
 
             name=name,
@@ -153,12 +167,15 @@ def create_customer(data):
 
             identity_number=identity_number or None,
 
-            status="ACTIVE"
+            status="ACTIVE",
+
+            is_active=True
 
         )
 
 
         db.session.add(customer)
+
 
         db.session.flush()
 
@@ -166,14 +183,13 @@ def create_customer(data):
 
         for group_id in group_ids:
 
-
             add_customer_to_group(
 
                 customer.id,
 
                 int(group_id),
 
-                joining_date.strftime("%Y-%m-%d")
+                joining_date
 
             )
 
@@ -188,11 +204,9 @@ def create_customer(data):
 
     except Exception:
 
-
         db.session.rollback()
 
         raise
-
 
 
 
@@ -203,11 +217,11 @@ def create_customer(data):
 
 def update_customer(customer_id, data):
 
-
     customer = db.session.get(
         Customer,
         customer_id
     )
+
 
 
     if not customer:
@@ -223,6 +237,7 @@ def update_customer(customer_id, data):
     ).strip()
 
 
+
     mobile = (
         data.get("mobile") or ""
     ).strip()
@@ -236,6 +251,7 @@ def update_customer(customer_id, data):
         )
 
 
+
     if not mobile:
 
         raise ValueError(
@@ -244,11 +260,17 @@ def update_customer(customer_id, data):
 
 
 
+    # ---------------------------------------------
+    # Active Mobile Duplicate Check
+    # ---------------------------------------------
+
     duplicate_mobile = Customer.query.filter(
 
         Customer.mobile == mobile,
 
-        Customer.id != customer_id
+        Customer.id != customer_id,
+
+        Customer.is_active == True
 
     ).first()
 
@@ -257,7 +279,7 @@ def update_customer(customer_id, data):
     if duplicate_mobile:
 
         raise ValueError(
-            "Mobile number already exists."
+            "Mobile number already exists for another active customer."
         )
 
 
@@ -268,6 +290,10 @@ def update_customer(customer_id, data):
 
 
 
+    # ---------------------------------------------
+    # Active Email Duplicate Check
+    # ---------------------------------------------
+
     if email:
 
 
@@ -275,7 +301,9 @@ def update_customer(customer_id, data):
 
             Customer.email == email,
 
-            Customer.id != customer_id
+            Customer.id != customer_id,
+
+            Customer.is_active == True
 
         ).first()
 
@@ -284,33 +312,41 @@ def update_customer(customer_id, data):
         if duplicate_email:
 
             raise ValueError(
-                "Email already exists."
+                "Email already exists for another active customer."
             )
 
 
 
     customer.name = name
 
+
     customer.mobile = mobile
+
 
     customer.email = email or None
 
+
     customer.address = (
-        data.get("address") or None
+        data.get("address")
+        or None
     )
 
 
     customer.identity_number = (
 
         data.get("identity_number")
+
         or None
 
     )
 
 
     customer.status = data.get(
+
         "status",
+
         "ACTIVE"
+
     )
 
 
@@ -324,22 +360,29 @@ def update_customer(customer_id, data):
 
 
 
-
 # -------------------------------------------------
 # Add Existing Customer To New Group
 # -------------------------------------------------
 
 def add_customer_to_group(
+
     customer_id,
+
     group_id,
+
     joining_date
+
 ):
 
 
     customer = db.session.get(
+
         Customer,
+
         customer_id
+
     )
+
 
 
     if not customer:
@@ -351,9 +394,13 @@ def add_customer_to_group(
 
 
     group = db.session.get(
+
         ChitGroup,
+
         group_id
+
     )
+
 
 
     if not group:
@@ -400,13 +447,7 @@ def add_customer_to_group(
 
 
 
-    joining_date = datetime.strptime(
-
-        joining_date,
-
-        "%Y-%m-%d"
-
-    ).date()
+    ticket_number = active_members + 1
 
 
 
@@ -416,7 +457,7 @@ def add_customer_to_group(
 
         group_id=group.id,
 
-        ticket_number=active_members + 1,
+        ticket_number=ticket_number,
 
         joining_date=joining_date,
 
@@ -431,75 +472,26 @@ def add_customer_to_group(
     )
 
 
-    db.session.flush()
-
-
-
-    for month in range(
-
-        1,
-
-        group.duration_months + 1
-
-    ):
-
-
-        due_date = (
-
-            group.start_date +
-
-            relativedelta(
-
-                months=month - 1
-
-            )
-
-        )
-
-
-
-        installment = Installment(
-
-            membership_id=membership.id,
-
-            installment_number=month,
-
-            due_month=due_date,
-
-            due_amount=group.monthly_installment,
-
-            status="PENDING"
-
-        )
-
-
-        db.session.add(
-            installment
-        )
-
-
-
-    db.session.commit()
-
-
 
     return membership
 
 
 
 
-
 # -------------------------------------------------
-# Delete Customer
+# Delete Customer (Soft Delete)
 # -------------------------------------------------
 
 def delete_customer(customer_id):
 
-
     customer = db.session.get(
+
         Customer,
+
         customer_id
+
     )
+
 
 
     if not customer:
@@ -510,26 +502,16 @@ def delete_customer(customer_id):
 
 
 
-    for membership in customer.memberships:
+    customer.status = "INACTIVE"
 
 
-        for installment in membership.installments:
+    customer.is_active = False
 
-            db.session.delete(
-                installment
-            )
-
-
-
-        db.session.delete(
-            membership
-        )
-
-
-
-    db.session.delete(
-        customer
-    )
 
 
     db.session.commit()
+
+
+
+    return True
+

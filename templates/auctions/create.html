@@ -1,0 +1,842 @@
+```html
+{% extends "layouts/base.html" %}
+
+{% block title %}
+Create Auction | ABR Chit Fund ERP
+{% endblock %}
+
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+
+    <div>
+        <h2 class="fw-bold mb-1">
+            Create Auction
+        </h2>
+
+        <p class="text-muted mb-0">
+            Record monthly auction details and calculate installment
+        </p>
+    </div>
+
+    <div>
+        <a
+            href="{{ url_for('auctions.list_auctions') }}"
+            class="btn btn-outline-secondary"
+        >
+            <i class="bi bi-arrow-left"></i>
+            Back to Auctions
+        </a>
+    </div>
+
+</div>
+
+
+<div class="card shadow-sm">
+
+    <div class="card-body">
+
+        <form
+            method="POST"
+            action="{{ url_for('auctions.create') }}"
+        >
+
+            <!-- ========================================= -->
+            <!-- Chit Group -->
+            <!-- ========================================= -->
+
+            <div class="mb-3">
+
+                <label
+                    for="group_id"
+                    class="form-label fw-semibold"
+                >
+                    Chit Group
+                </label>
+
+                <select
+                    name="group_id"
+                    id="group_id"
+                    class="form-select"
+                    required
+                >
+
+                    <option value="">
+                        Select Group
+                    </option>
+
+                    {% for group in groups %}
+
+                    <option
+                        value="{{ group.id }}"
+                        data-group-amount="{{ group.group_amount }}"
+                        data-duration="{{ group.duration_months }}"
+                    >
+                        {{ group.name }}
+                    </option>
+
+                    {% endfor %}
+
+                </select>
+
+                <small class="text-muted">
+                    Select the chit group for this auction.
+                </small>
+
+            </div>
+
+
+            <!-- ========================================= -->
+            <!-- Auction Winner -->
+            <!-- ========================================= -->
+
+            <div class="mb-3">
+
+                <label
+                    for="winner_customer_id"
+                    class="form-label fw-semibold"
+                >
+                    Auction Winner
+                </label>
+
+                <select
+                    name="winner_customer_id"
+                    id="winner_customer_id"
+                    class="form-select"
+                    required
+                    disabled
+                >
+
+                    <option value="">
+                        Select Group First
+                    </option>
+
+                </select>
+
+                <small class="text-muted">
+                    Only active members of the selected group
+                    will appear.
+                </small>
+
+            </div>
+
+
+            <!-- ========================================= -->
+            <!-- Auction Month / Date -->
+            <!-- ========================================= -->
+
+            <div class="row">
+
+                <div class="col-md-6 mb-3">
+
+                    <label
+                        for="auction_month"
+                        class="form-label fw-semibold"
+                    >
+                        Auction Month
+                    </label>
+
+                    <input
+                        type="number"
+                        name="auction_month"
+                        id="auction_month"
+                        class="form-control"
+                        placeholder="Example: 1"
+                        min="1"
+                        required
+                    >
+
+                    <small class="text-muted">
+                        Example: 1 for the first auction.
+                    </small>
+
+                </div>
+
+
+                <div class="col-md-6 mb-3">
+
+                    <label
+                        for="auction_date"
+                        class="form-label fw-semibold"
+                    >
+                        Auction Date
+                    </label>
+
+                    <input
+                        type="date"
+                        name="auction_date"
+                        id="auction_date"
+                        class="form-control"
+                        required
+                    >
+
+                </div>
+
+            </div>
+
+
+            <!-- ========================================= -->
+            <!-- Winning Bid -->
+            <!-- ========================================= -->
+
+            <div class="mb-4">
+
+                <label
+                    for="bid_amount"
+                    class="form-label fw-semibold"
+                >
+                    Winning Bid Amount
+                </label>
+
+                <div class="input-group">
+
+                    <span class="input-group-text">
+                        ₹
+                    </span>
+
+                    <input
+                        type="number"
+                        name="bid_amount"
+                        id="bid_amount"
+                        class="form-control"
+                        placeholder="Enter bid amount"
+                        min="0.01"
+                        step="0.01"
+                        required
+                    >
+
+                </div>
+
+                <small class="text-muted">
+                    Enter the amount bid by the auction winner.
+                </small>
+
+            </div>
+
+
+            <!-- ========================================= -->
+            <!-- Auction Calculation -->
+            <!-- ========================================= -->
+
+            <div
+                id="auction-info"
+                class="alert alert-light border mb-4"
+            >
+
+                <h6 class="fw-bold mb-3">
+                    Auction Calculation
+                </h6>
+
+
+                <div class="row">
+
+                    <!-- Group Amount -->
+
+                    <div class="col-md-3 mb-3">
+
+                        <small class="text-muted">
+                            Group Amount
+                        </small>
+
+                        <div
+                            id="group-amount"
+                            class="fw-semibold"
+                        >
+                            —
+                        </div>
+
+                    </div>
+
+
+                    <!-- Commission -->
+
+                    <div class="col-md-3 mb-3">
+
+                        <small class="text-muted">
+                            Commission (4%)
+                        </small>
+
+                        <div
+                            id="commission-amount"
+                            class="fw-semibold"
+                        >
+                            —
+                        </div>
+
+                    </div>
+
+
+                    <!-- Net Bid -->
+
+                    <div class="col-md-3 mb-3">
+
+                        <small class="text-muted">
+                            Net Bid
+                        </small>
+
+                        <div
+                            id="net-bid-amount"
+                            class="fw-semibold"
+                        >
+                            —
+                        </div>
+
+                    </div>
+
+
+                    <!-- Installment -->
+
+                    <div class="col-md-3 mb-3">
+
+                        <small class="text-muted">
+                            Monthly Installment
+                        </small>
+
+                        <div
+                            id="installment-amount"
+                            class="fw-semibold"
+                        >
+                            —
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- ========================================= -->
+            <!-- Buttons -->
+            <!-- ========================================= -->
+
+            <div class="d-flex gap-2">
+
+                <button
+                    type="submit"
+                    class="btn btn-success"
+                >
+
+                    <i class="bi bi-check-circle me-1"></i>
+
+                    Complete Auction
+
+                </button>
+
+
+                <a
+                    href="{{ url_for('auctions.list_auctions') }}"
+                    class="btn btn-secondary"
+                >
+                    Cancel
+                </a>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+<script>
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+        const groupSelect =
+            document.getElementById(
+                "group_id"
+            );
+
+        const winnerSelect =
+            document.getElementById(
+                "winner_customer_id"
+            );
+
+        const bidInput =
+            document.getElementById(
+                "bid_amount"
+            );
+
+        const groupAmountElement =
+            document.getElementById(
+                "group-amount"
+            );
+
+        const commissionElement =
+            document.getElementById(
+                "commission-amount"
+            );
+
+        const netBidElement =
+            document.getElementById(
+                "net-bid-amount"
+            );
+
+        const installmentElement =
+            document.getElementById(
+                "installment-amount"
+            );
+
+
+        // =============================================
+        // Format Currency
+        // =============================================
+
+        function formatCurrency(value) {
+
+            if (
+                value === null ||
+                value === undefined ||
+                isNaN(value)
+            ) {
+                return "—";
+            }
+
+            return "₹" +
+                Number(value).toLocaleString(
+                    "en-IN",
+                    {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                    }
+                );
+        }
+
+
+        // =============================================
+        // Reset Winner Dropdown
+        // =============================================
+
+        function resetWinnerDropdown() {
+
+            winnerSelect.innerHTML = "";
+
+            const option =
+                document.createElement("option");
+
+            option.value = "";
+
+            option.textContent =
+                "Select Group First";
+
+            winnerSelect.appendChild(
+                option
+            );
+
+            winnerSelect.disabled = true;
+        }
+
+
+        // =============================================
+        // Load Group Members
+        // =============================================
+
+        groupSelect.addEventListener(
+            "change",
+            async function () {
+
+                const groupId =
+                    this.value;
+
+
+                // Reset fields
+
+                winnerSelect.innerHTML = "";
+
+                winnerSelect.disabled = true;
+
+
+                groupAmountElement.textContent =
+                    "—";
+
+                commissionElement.textContent =
+                    "—";
+
+                netBidElement.textContent =
+                    "—";
+
+                installmentElement.textContent =
+                    "—";
+
+
+                if (!groupId) {
+
+                    resetWinnerDropdown();
+
+                    return;
+                }
+
+
+                // =====================================
+                // Display Group Amount
+                // =====================================
+
+                const selectedOption =
+                    this.options[
+                        this.selectedIndex
+                    ];
+
+                const groupAmount =
+                    parseFloat(
+                        selectedOption.dataset.groupAmount
+                    );
+
+                const duration =
+                    parseInt(
+                        selectedOption.dataset.duration
+                    );
+
+
+                if (!isNaN(groupAmount)) {
+
+                    groupAmountElement.textContent =
+                        formatCurrency(
+                            groupAmount
+                        );
+
+                }
+
+
+                // =====================================
+                // Load Members
+                // =====================================
+
+                winnerSelect.innerHTML = "";
+
+                const loadingOption =
+                    document.createElement(
+                        "option"
+                    );
+
+                loadingOption.value = "";
+
+                loadingOption.textContent =
+                    "Loading members...";
+
+                winnerSelect.appendChild(
+                    loadingOption
+                );
+
+                winnerSelect.disabled = true;
+
+
+                try {
+
+                    const response =
+                        await fetch(
+                            "{{ url_for('auctions.group_members', group_id=0) }}"
+                                .replace(
+                                    "/0/",
+                                    "/" +
+                                    groupId +
+                                    "/"
+                                )
+                        );
+
+
+                    if (!response.ok) {
+
+                        throw new Error(
+                            "Failed to load group members"
+                        );
+
+                    }
+
+
+                    const members =
+                        await response.json();
+
+
+                    winnerSelect.innerHTML = "";
+
+
+                    if (
+                        !members ||
+                        members.length === 0
+                    ) {
+
+                        const option =
+                            document.createElement(
+                                "option"
+                            );
+
+                        option.value = "";
+
+                        option.textContent =
+                            "No active members found";
+
+                        winnerSelect.appendChild(
+                            option
+                        );
+
+                        winnerSelect.disabled =
+                            true;
+
+                        return;
+                    }
+
+
+                    const defaultOption =
+                        document.createElement(
+                            "option"
+                        );
+
+                    defaultOption.value = "";
+
+                    defaultOption.textContent =
+                        "Select Auction Winner";
+
+                    winnerSelect.appendChild(
+                        defaultOption
+                    );
+
+
+                    members.forEach(
+                        function (member) {
+
+                            const option =
+                                document.createElement(
+                                    "option"
+                                );
+
+                            option.value =
+                                member.id;
+
+                            option.textContent =
+                                member.name +
+                                (
+                                    member.mobile
+                                        ? " - " +
+                                          member.mobile
+                                        : ""
+                                );
+
+                            winnerSelect.appendChild(
+                                option
+                            );
+
+                        }
+                    );
+
+
+                    winnerSelect.disabled =
+                        false;
+
+                }
+                catch (error) {
+
+                    console.error(
+                        error
+                    );
+
+
+                    winnerSelect.innerHTML =
+                        "";
+
+                    const option =
+                        document.createElement(
+                            "option"
+                        );
+
+                    option.value = "";
+
+                    option.textContent =
+                        "Unable to load members";
+
+                    winnerSelect.appendChild(
+                        option
+                    );
+
+                    winnerSelect.disabled =
+                        true;
+                }
+
+
+                calculateAuction();
+
+            }
+        );
+
+
+        // =============================================
+        // Calculate Auction
+        // =============================================
+
+        function calculateAuction() {
+
+            const selectedOption =
+                groupSelect.options[
+                    groupSelect.selectedIndex
+                ];
+
+
+            if (
+                !selectedOption ||
+                !selectedOption.value
+            ) {
+
+                groupAmountElement.textContent =
+                    "—";
+
+                commissionElement.textContent =
+                    "—";
+
+                netBidElement.textContent =
+                    "—";
+
+                installmentElement.textContent =
+                    "—";
+
+                return;
+            }
+
+
+            const groupAmount =
+                parseFloat(
+                    selectedOption.dataset.groupAmount
+                );
+
+
+            const duration =
+                parseInt(
+                    selectedOption.dataset.duration
+                );
+
+
+            const bidAmount =
+                parseFloat(
+                    bidInput.value
+                );
+
+
+            if (
+                isNaN(groupAmount)
+            ) {
+
+                groupAmountElement.textContent =
+                    "—";
+
+                return;
+            }
+
+
+            groupAmountElement.textContent =
+                formatCurrency(
+                    groupAmount
+                );
+
+
+            // =========================================
+            // Commission = 4% of Group Amount
+            // =========================================
+
+            const commission =
+                (
+                    groupAmount * 4
+                ) / 100;
+
+
+            commissionElement.textContent =
+                formatCurrency(
+                    commission
+                );
+
+
+            if (
+                isNaN(bidAmount) ||
+                bidAmount <= 0
+            ) {
+
+                netBidElement.textContent =
+                    "—";
+
+                installmentElement.textContent =
+                    "—";
+
+                return;
+            }
+
+
+            // =========================================
+            // Net Bid
+            // =========================================
+
+            const netBid =
+                bidAmount -
+                commission;
+
+
+            if (netBid < 0) {
+
+                netBidElement.textContent =
+                    "Invalid bid";
+
+                installmentElement.textContent =
+                    "—";
+
+                return;
+            }
+
+
+            netBidElement.textContent =
+                formatCurrency(
+                    netBid
+                );
+
+
+            // =========================================
+            // Monthly Installment
+            // =========================================
+
+            if (
+                isNaN(duration) ||
+                duration <= 0
+            ) {
+
+                installmentElement.textContent =
+                    "—";
+
+                return;
+            }
+
+
+            const installment =
+                (
+                    groupAmount -
+                    netBid
+                ) / duration;
+
+
+            installmentElement.textContent =
+                formatCurrency(
+                    installment
+                );
+
+        }
+
+
+        // =============================================
+        // Recalculate when Bid Changes
+        // =============================================
+
+        bidInput.addEventListener(
+            "input",
+            calculateAuction
+        );
+
+
+        // Initial calculation
+
+        calculateAuction();
+
+    }
+);
+
+</script>
+
+{% endblock %}
+```

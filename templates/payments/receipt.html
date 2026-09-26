@@ -1,0 +1,377 @@
+{% extends "layouts/base.html" %}
+
+
+{% block title %}
+Payment Receipt
+{% endblock %}
+
+
+
+{% block content %}
+
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+
+    <h2 class="fw-bold">
+        Payment Receipt
+    </h2>
+
+
+    <button onclick="window.print()"
+            class="btn btn-primary">
+
+        Print Receipt
+
+    </button>
+
+
+</div>
+
+
+
+
+
+<div class="erp-card p-4">
+
+
+
+<div class="text-center mb-4">
+
+
+<h3 class="fw-bold">
+ABR BEST CHIT FUND
+</h3>
+
+
+<h5>
+PAYMENT RECEIPT
+</h5>
+
+
+</div>
+
+
+
+<hr>
+
+
+
+
+
+<div class="row mb-3">
+
+
+<div class="col-md-6">
+
+<strong>
+Receipt Number:
+</strong>
+
+<br>
+
+{{ receipt.receipt_number }}
+
+</div>
+
+
+
+<div class="col-md-6">
+
+<strong>
+Payment Date:
+</strong>
+
+<br>
+
+{{ receipt.payment_date }}
+
+</div>
+
+
+</div>
+
+
+
+
+
+
+<div class="row mb-3">
+
+
+<div class="col-md-6">
+
+<strong>
+Customer Name:
+</strong>
+
+<br>
+
+{{ receipt.customer_name }}
+
+</div>
+
+
+
+<div class="col-md-6">
+
+<strong>
+Customer ID:
+</strong>
+
+<br>
+
+CUST-{{ receipt.customer_id }}
+
+</div>
+
+
+</div>
+
+
+
+
+
+
+<hr>
+
+
+
+
+
+<h5 class="fw-bold">
+Payment Allocation Details
+</h5>
+
+
+
+
+<table class="table table-bordered">
+
+
+<thead>
+
+<tr>
+
+<th>
+Group
+</th>
+
+
+<th>
+Installment
+</th>
+
+
+<th>
+Amount
+</th>
+
+
+</tr>
+
+</thead>
+
+
+
+
+<tbody>
+
+
+{% for item in receipt.allocations %}
+
+
+<tr>
+
+
+<td>
+{{ item.group_name }}
+</td>
+
+
+
+<td>
+Installment {{ item.installment_number }}
+</td>
+
+
+
+<td>
+₹{{ "{:,.0f}".format(item.allocated_amount) }}
+</td>
+
+
+</tr>
+
+
+{% endfor %}
+
+
+
+</tbody>
+
+
+</table>
+
+
+
+
+
+
+
+<hr>
+
+
+
+
+<h5 class="fw-bold">
+Payment Summary
+</h5>
+
+
+
+<table class="table table-bordered">
+
+
+<tr>
+
+<th>
+Amount Received
+</th>
+
+
+<td>
+₹{{ "{:,.0f}".format(receipt.amount_paid) }}
+</td>
+
+
+</tr>
+
+
+
+<tr>
+
+<th>
+Remaining Due
+</th>
+
+
+<td>
+
+{% if receipt.current_balance > 0 %}
+
+₹{{ "{:,.0f}".format(receipt.current_balance) }}
+
+{% else %}
+
+This month's installment is completely paid
+
+{% endif %}
+
+
+</td>
+
+
+</tr>
+
+
+
+<tr>
+
+<th>
+Outstanding Due Amount
+</th>
+
+
+<td>
+
+{% if receipt.current_balance > 0 %}
+
+₹{{ "{:,.0f}".format(receipt.current_balance) }}
+
+{% else %}
+
+₹0
+
+{% endif %}
+
+
+</td>
+
+
+</tr>
+
+
+</table>
+
+
+
+
+
+
+<hr>
+
+
+
+
+<div class="mt-4">
+
+
+<h6 class="fw-bold">
+Payment Status
+</h6>
+
+
+
+{% if receipt.current_balance == 0 %}
+
+<p class="text-success fw-bold">
+✓ Payment completed successfully. No pending dues for current installment.
+</p>
+
+
+{% else %}
+
+
+<p class="text-danger fw-bold">
+
+Pending Due:
+₹{{ "{:,.0f}".format(receipt.current_balance) }}
+
+</p>
+
+
+{% endif %}
+
+
+
+</div>
+
+
+
+
+
+
+
+<div class="text-center mt-5">
+
+
+<p>
+Thank you for your payment.
+</p>
+
+
+<p>
+ABR BEST CHIT FUND
+</p>
+
+
+</div>
+
+
+
+
+</div>
+
+
+
+{% endblock %}

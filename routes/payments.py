@@ -4,65 +4,130 @@ from flask import (
     request,
     redirect,
     url_for,
-    flash
+    flash,
+    jsonify
 )
 
 from flask_login import login_required
 
+from models.customer import Customer
+
+
 from services.payment_service import (
+
     get_all_payments,
-    create_payment
+
+    create_payment,
+
+    get_customer_due,
+
+    delete_payment
+
 )
 
-from models.installment import Installment
+
+from services.receipt_service import (
+
+    get_receipt_details
+
+)
+
 
 
 
 payments = Blueprint(
+
     "payments",
+
     __name__,
+
     url_prefix="/payments"
+
 )
 
 
+
+
+
+# ---------------------------------
+# Payment List
+# ---------------------------------
 
 @payments.route("/")
 @login_required
 def list_payments():
 
+
     payments_list = get_all_payments()
 
+
+
     return render_template(
+
         "payments/list.html",
+
         payments=payments_list
+
     )
 
 
 
 
 
-@payments.route("/create", methods=["GET","POST"])
+
+
+# ---------------------------------
+# Create Payment
+# ---------------------------------
+
+@payments.route(
+    "/create",
+    methods=["GET","POST"]
+)
 @login_required
 def create():
 
 
-    installments = Installment.query.all()
+
+    customers = Customer.query.filter_by(
+
+        status="ACTIVE"
+
+    ).order_by(
+
+        Customer.name
+
+    ).all()
+
 
 
 
     if request.method == "POST":
 
 
+
         data = {
 
 
-            "installment_id":
+
+            "customer_id":
+
                 request.form.get(
-                    "installment_id"
+                    "customer_id"
                 ),
 
 
+
+            "amount":
+
+                request.form.get(
+                    "amount"
+                ),
+
+
+
             "payment_date":
+
                 request.form.get(
                     "payment_date"
                 ),
@@ -70,6 +135,7 @@ def create():
 
 
             "payment_method":
+
                 request.form.get(
                     "payment_method"
                 ),
@@ -77,6 +143,7 @@ def create():
 
 
             "transaction_reference":
+
                 request.form.get(
                     "transaction_reference"
                 ),
@@ -84,44 +151,203 @@ def create():
 
 
             "notes":
+
                 request.form.get(
                     "notes"
                 )
+
 
         }
 
 
 
+
+
         try:
 
-            create_payment(data)
+
+
+            payment = create_payment(
+                data
+            )
+
 
 
             flash(
+
                 "Payment recorded successfully",
+
                 "success"
+
             )
+
 
 
             return redirect(
+
                 url_for(
-                    "payments.list_payments"
+
+                    "payments.receipt",
+
+                    payment_id=payment.id
+
                 )
+
             )
+
 
 
 
         except ValueError as error:
 
 
+
             flash(
+
                 str(error),
+
                 "danger"
+
             )
 
 
 
+
     return render_template(
+
         "payments/create.html",
-        installments=installments
+
+        customers=customers
+
+    )
+
+
+
+
+
+
+
+
+# ---------------------------------
+# Customer Due API
+# ---------------------------------
+
+@payments.route(
+    "/customer/<int:customer_id>/due"
+)
+@login_required
+def customer_due(customer_id):
+
+
+    due = get_customer_due(
+
+        customer_id
+
+    )
+
+
+
+    return jsonify(due)
+
+
+
+
+
+
+
+# ---------------------------------
+# Receipt
+# ---------------------------------
+
+@payments.route(
+    "/receipt/<int:payment_id>"
+)
+@login_required
+def receipt(payment_id):
+
+
+    receipt_data = get_receipt_details(
+
+        payment_id
+
+    )
+
+
+
+    return render_template(
+
+        "payments/receipt.html",
+
+        receipt=receipt_data
+
+    )
+
+
+
+
+
+
+
+
+# ---------------------------------
+# Delete Payment
+# ---------------------------------
+
+@payments.route(
+
+    "/delete/<int:payment_id>",
+
+    methods=["POST"]
+
+)
+
+@login_required
+
+def delete(payment_id):
+
+
+    try:
+
+
+
+        delete_payment(
+
+            payment_id
+
+        )
+
+
+
+        flash(
+
+            "Payment deleted successfully. Installment balance restored.",
+
+            "success"
+
+        )
+
+
+
+    except ValueError as error:
+
+
+
+        flash(
+
+            str(error),
+
+            "danger"
+
+        )
+
+
+
+    return redirect(
+
+        url_for(
+
+            "payments.list_payments"
+
+        )
+
     )

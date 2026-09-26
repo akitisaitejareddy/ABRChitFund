@@ -1,0 +1,473 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}
+Auctions | ABR Chit Fund ERP
+{% endblock %}
+
+
+{% block content %}
+
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+
+    <div>
+
+        <h2 class="fw-bold mb-1">
+            Auctions
+        </h2>
+
+        <p class="text-muted mb-0">
+            Manage chit fund auctions and auction results.
+        </p>
+
+    </div>
+
+
+    <div>
+
+        <a href="{{ url_for('auctions.create') }}"
+           class="btn btn-primary">
+
+            <i class="bi bi-plus-circle me-1"></i>
+
+            Create New Auction
+
+        </a>
+
+    </div>
+
+</div>
+
+
+
+<!-- Summary -->
+
+<div class="row mb-4">
+
+
+    <div class="col-md-4 mb-3">
+
+        <div class="card shadow-sm border-0 h-100">
+
+            <div class="card-body">
+
+                <h6 class="text-muted mb-2">
+                    Total Auctions
+                </h6>
+
+
+                <h3 class="mb-0">
+                    {{ auctions|length }}
+                </h3>
+
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+</div>
+
+
+
+
+
+<!-- Auction Table -->
+
+<div class="card shadow-sm border-0">
+
+
+    <div class="card-header bg-white py-3">
+
+        <h5 class="mb-0">
+            Auction History
+        </h5>
+
+    </div>
+
+
+
+    <div class="card-body p-0">
+
+
+        {% if auctions %}
+
+
+        <div class="table-responsive">
+
+
+            <table class="table table-hover align-middle mb-0">
+
+
+                <thead class="table-light">
+
+
+                    <tr>
+
+                        <th>
+                            #
+                        </th>
+
+
+                        <th>
+                            Group
+                        </th>
+
+
+                        <th>
+                            Auction Month
+                        </th>
+
+
+                        <th>
+                            Auction Date
+                        </th>
+
+
+                        <th>
+                            Winner
+                        </th>
+
+
+                        <th>
+                            Bid Amount
+                        </th>
+
+
+                        <th>
+                            Commission
+                        </th>
+
+
+                        <th>
+                            Net Bid
+                        </th>
+
+
+                        <th>
+                            Installment
+                        </th>
+
+
+                        <th>
+                            Actions
+                        </th>
+
+
+                    </tr>
+
+
+                </thead>
+
+
+
+
+                <tbody>
+
+
+                {% for auction in auctions %}
+
+
+                    <tr>
+
+
+                        <td>
+
+                            {{ auction.id }}
+
+                        </td>
+
+
+
+
+                        <!-- Group -->
+
+                        <td>
+
+
+                            {% if auction.group %}
+
+
+                                {{ auction.group.name }}
+
+
+                            {% else %}
+
+
+                                <span class="text-muted">
+                                    N/A
+                                </span>
+
+
+                            {% endif %}
+
+
+                        </td>
+
+
+
+
+
+                        <!-- Month -->
+
+                        <td>
+
+                            {{ auction.auction_month }}
+
+                        </td>
+
+
+
+
+
+                        <!-- Date -->
+
+                        <td>
+
+
+                            {% if auction.auction_date %}
+
+
+                                {{ auction.auction_date.strftime('%d-%m-%Y') }}
+
+
+                            {% else %}
+
+
+                                <span class="text-muted">
+                                    N/A
+                                </span>
+
+
+                            {% endif %}
+
+
+                        </td>
+
+
+
+
+
+                        <!-- Winner -->
+
+                        <td>
+
+
+                            {% if auction.winner %}
+
+
+                                <strong>
+                                    {{ auction.winner.name }}
+                                </strong>
+
+
+                                {% if auction.winner.mobile %}
+
+
+                                    <br>
+
+
+                                    <small class="text-muted">
+
+                                        {{ auction.winner.mobile }}
+
+                                    </small>
+
+
+                                {% endif %}
+
+
+
+                            {% else %}
+
+
+                                <span class="text-muted">
+                                    N/A
+                                </span>
+
+
+                            {% endif %}
+
+
+                        </td>
+
+
+
+
+
+                        <!-- Bid Amount -->
+
+                        <td>
+
+                            ₹{{ "%.2f"|format(auction.bid_amount or 0) }}
+
+                        </td>
+
+
+
+
+
+                        <!-- Commission -->
+
+                        <td>
+
+                            ₹{{ "%.2f"|format(auction.commission_amount or 0) }}
+
+                        </td>
+
+
+
+
+
+                        <!-- Net Bid -->
+
+                        <td>
+
+                            ₹{{ "%.2f"|format(auction.net_bid_amount or 0) }}
+
+                        </td>
+
+
+
+
+
+                        <!-- Installment -->
+
+                        <td>
+
+                            ₹{{ "%.2f"|format(auction.installment_amount or 0) }}
+
+                        </td>
+
+
+
+
+
+                        <!-- Actions -->
+
+                        <td>
+
+
+                            <form
+
+                            method="POST"
+
+                            action="{{ url_for('auctions.delete', auction_id=auction.id) }}"
+
+                            >
+
+
+                                <button
+
+                                type="submit"
+
+                                class="btn btn-sm btn-danger"
+
+                                onclick="return confirm('Are you sure you want to delete this auction?')"
+
+                                >
+
+
+                                    <i class="bi bi-trash"></i>
+
+                                    Delete
+
+
+                                </button>
+
+
+                            </form>
+
+
+                        </td>
+
+
+
+
+                    </tr>
+
+
+
+                {% endfor %}
+
+
+
+                </tbody>
+
+
+
+            </table>
+
+
+
+        </div>
+
+
+
+        {% else %}
+
+
+
+        <!-- Empty State -->
+
+
+        <div class="text-center py-5">
+
+
+            <div class="mb-3">
+
+
+                <i class="bi bi-hammer fs-1 text-muted"></i>
+
+
+            </div>
+
+
+
+            <h5>
+                No Auctions Found
+            </h5>
+
+
+
+            <p class="text-muted mb-3">
+
+                There are currently no auction records available.
+
+            </p>
+
+
+
+
+            <a href="{{ url_for('auctions.create') }}"
+
+               class="btn btn-primary">
+
+
+                <i class="bi bi-plus-circle me-1"></i>
+
+                Create First Auction
+
+
+            </a>
+
+
+
+        </div>
+
+
+
+        {% endif %}
+
+
+
+    </div>
+
+
+</div>
+
+
+
+{% endblock %}

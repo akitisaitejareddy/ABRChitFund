@@ -4,6 +4,7 @@ from models.customer import Customer
 from models.group import ChitGroup
 from models.payment import Payment
 from models.installment import Installment
+from models.membership import Membership
 
 
 
@@ -12,63 +13,141 @@ def get_admin_dashboard_data():
     today = date.today()
 
 
-    # -----------------------------
-    # Total Customers
-    # -----------------------------
+    # ---------------------------------
+    # Total Collection
+    # Only active records
+    # ---------------------------------
 
-    total_customers = Customer.query.count()
-
-
-
-    # -----------------------------
-    # Active Groups
-    # -----------------------------
-
-    active_groups = ChitGroup.query.filter_by(
-        status="ACTIVE"
-    ).count()
+    all_payments = Payment.query.all()
 
 
+    total_collection = sum(
+        payment.amount
+        for payment in all_payments
+        if payment.amount
+    )
 
-    # -----------------------------
+
+    total_collection = round(
+        total_collection
+    )
+
+
+
+    # ---------------------------------
+    # Total Bid Payments
+    # ---------------------------------
+
+    total_bid_payments = 0
+
+
+
+    # ---------------------------------
     # Today's Collection
-    # -----------------------------
+    # ---------------------------------
 
     today_payments = Payment.query.filter(
         Payment.payment_date == today
     ).all()
 
 
-    total_today_collection = sum(
+    today_collection = sum(
         payment.amount
         for payment in today_payments
         if payment.amount
     )
 
 
-    # Remove decimal values
-    total_today_collection = round(
-        total_today_collection
+    today_collection = round(
+        today_collection
     )
 
 
 
-    # -----------------------------
-    # Pending Payments
-    # -----------------------------
+    # ---------------------------------
+    # Total Pending Amount
+    # Ignore deleted groups
+    # ---------------------------------
 
-    pending_payments = Installment.query.filter_by(
-        status="PENDING"
-    ).count()
+    pending_installments = (
+
+        Installment.query
+
+        .join(
+            Membership,
+            Installment.membership_id == Membership.id
+        )
+
+        .join(
+            ChitGroup,
+            Membership.group_id == ChitGroup.id
+        )
+
+        .filter(
+
+            Installment.status != "PAID",
+
+            ChitGroup.is_active == True
+
+        )
+
+        .all()
+
+    )
+
+
+    total_pending_amount = 0
 
 
 
-    # -----------------------------
+    for installment in pending_installments:
+
+
+        due_month = installment.due_month
+
+
+        if (
+
+            due_month.month == today.month
+
+            and
+
+            due_month.year == today.year
+
+        ):
+
+
+            balance = (
+
+                installment.due_amount
+
+                -
+
+                (installment.paid_amount or 0)
+
+            )
+
+
+            if balance > 0:
+
+                total_pending_amount += balance
+
+
+
+    total_pending_amount = round(
+        total_pending_amount
+    )
+
+
+
+    # ---------------------------------
     # Recent Payments
-    # -----------------------------
+    # ---------------------------------
 
     recent_payments = Payment.query.order_by(
+
         Payment.created_at.desc()
+
     ).limit(5).all()
 
 
@@ -76,20 +155,20 @@ def get_admin_dashboard_data():
     return {
 
 
-        "total_customers":
-            total_customers,
+        "total_collection":
+            total_collection,
 
 
-        "active_groups":
-            active_groups,
+        "total_bid_payments":
+            total_bid_payments,
 
 
         "today_collection":
-            total_today_collection,
+            today_collection,
 
 
-        "pending_payments":
-            pending_payments,
+        "total_pending_amount":
+            total_pending_amount,
 
 
         "recent_payments":

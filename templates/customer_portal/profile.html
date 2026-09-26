@@ -1,0 +1,405 @@
+{% extends "layouts/base.html" %}
+
+
+{% block title %}
+
+Customer Portal
+
+{% endblock %}
+
+
+
+{% block content %}
+
+
+
+<div class="d-flex justify-content-between mb-4">
+
+
+    <div>
+
+        <h2 class="fw-bold">
+
+            Customer Portal
+
+        </h2>
+
+
+        <p class="text-muted">
+
+            Customer payment and chit history
+
+        </p>
+
+
+    </div>
+
+
+</div>
+
+
+
+
+
+<div class="erp-card p-4 mb-4">
+
+
+<h4 class="fw-bold">
+
+{{ data.customer.name }}
+
+</h4>
+
+
+<p>
+
+<strong>Customer ID:</strong>
+CUST-{{ data.customer.id }}
+
+</p>
+
+
+<p>
+
+<strong>Mobile:</strong>
+{{ data.customer.mobile }}
+
+</p>
+
+
+<p>
+
+<strong>Email:</strong>
+{{ data.customer.email or "-" }}
+
+</p>
+
+
+<p>
+
+<strong>Address:</strong>
+{{ data.customer.address or "-" }}
+
+</p>
+
+
+</div>
+
+
+
+
+
+
+
+<div class="erp-card p-4 mb-4">
+
+
+<h5 class="fw-bold">
+
+Chit Groups
+
+</h5>
+
+
+
+<table class="table">
+
+
+<tr>
+
+<th>
+Group
+</th>
+
+
+<th>
+Ticket Number
+</th>
+
+
+<th>
+Joining Date
+</th>
+
+
+</tr>
+
+
+
+{% for group in data.groups %}
+
+
+<tr>
+
+
+<td>
+
+{{ group.group_name }}
+
+</td>
+
+
+<td>
+
+{{ group.ticket_number }}
+
+</td>
+
+
+<td>
+
+{{ group.joining_date }}
+
+</td>
+
+
+</tr>
+
+
+{% endfor %}
+
+
+</table>
+
+
+</div>
+
+
+
+
+
+
+
+
+<div class="erp-card p-4 mb-4">
+
+
+<h5 class="fw-bold">
+
+Installment History
+
+</h5>
+
+
+
+<table class="table table-bordered">
+
+
+<tr>
+
+<th>
+Month
+</th>
+
+
+<th>
+Installment
+</th>
+
+
+<th>
+Due Amount
+</th>
+
+
+<th>
+Paid
+</th>
+
+
+<th>
+Balance
+</th>
+
+
+<th>
+Status
+</th>
+
+
+</tr>
+
+
+
+
+{% for item in data.installments %}
+
+
+
+<tr>
+
+
+<td>
+
+{{ item.month }}
+
+</td>
+
+
+<td>
+
+Month {{ item.installment_number }}
+
+</td>
+
+
+<td>
+
+₹{{ "{:,.0f}".format(item.due_amount) }}
+
+</td>
+
+
+<td>
+
+₹{{ "{:,.0f}".format(item.paid_amount) }}
+
+</td>
+
+
+<td>
+
+₹{{ "{:,.0f}".format(item.balance) }}
+
+</td>
+
+
+<td>
+
+{{ item.status }}
+
+</td>
+
+
+</tr>
+
+
+
+{% endfor %}
+
+
+
+</table>
+
+
+</div>
+
+
+
+
+
+
+
+<div class="erp-card p-4 mb-4">
+
+
+<h5 class="fw-bold">
+
+Payment History
+
+</h5>
+
+
+
+<table class="table">
+
+
+<tr>
+
+<th>
+Receipt
+</th>
+
+
+<th>
+Date
+</th>
+
+
+<th>
+Amount
+</th>
+
+
+<th>
+Method
+</th>
+
+
+</tr>
+
+
+
+
+{% for payment in data.payments %}
+
+
+
+<tr>
+
+
+<td>
+
+{{ payment.receipt_number }}
+
+</td>
+
+
+<td>
+
+{{ payment.date }}
+
+</td>
+
+
+<td>
+
+₹{{ "{:,.0f}".format(payment.amount) }}
+
+</td>
+
+
+<td>
+
+{{ payment.payment_method }}
+
+</td>
+
+
+</tr>
+
+
+
+{% endfor %}
+
+
+
+</table>
+
+
+</div>
+
+
+
+
+
+
+
+<div class="alert alert-danger">
+
+
+<strong>
+
+Outstanding Due:
+
+</strong>
+
+
+₹{{ "{:,.0f}".format(data.outstanding_due) }}
+
+
+</div>
+
+
+
+{% endblock %}

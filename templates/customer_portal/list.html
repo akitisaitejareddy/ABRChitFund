@@ -1,0 +1,134 @@
+{% extends "layouts/base.html" %}
+
+
+{% block title %}
+
+Customer Portal
+
+{% endblock %}
+
+
+
+{% block content %}
+
+
+
+<div class="d-flex justify-content-between mb-4">
+
+<h2 class="fw-bold">
+
+Customer Portal
+
+</h2>
+
+
+</div>
+
+
+
+
+
+<div class="erp-card">
+
+
+<table class="table">
+
+
+<thead>
+
+<tr>
+
+<th>
+Customer
+</th>
+
+
+<th>
+Mobile
+</th>
+
+
+<th>
+Email
+</th>
+
+
+<th>
+Action
+</th>
+
+
+</tr>
+
+
+</thead>
+
+
+
+<tbody>
+
+
+{% for customer in customers %}
+
+
+<tr>
+
+
+<td>
+
+{{ customer.name }}
+
+</td>
+
+
+
+<td>
+
+{{ customer.mobile }}
+
+</td>
+
+
+
+<td>
+
+{{ customer.email or '-' }}
+
+</td>
+
+
+
+<td>
+
+
+<a class="btn btn-primary btn-sm"
+href="{{ url_for('customer_portal.profile', customer_id=customer.id) }}">
+
+
+View Profile
+
+
+</a>
+
+
+</td>
+
+
+
+</tr>
+
+
+{% endfor %}
+
+
+</tbody>
+
+
+</table>
+
+
+</div>
+
+
+
+{% endblock %}

@@ -1,294 +1,286 @@
-{% extends "layouts/base.html" %}
+    {% extends "layouts/base.html" %}
 
 
-{% block title %}
+    {% block title %}
 
-Payments | ABR Chit Fund ERP
+    Payments | ABR Chit Fund ERP
 
-{% endblock %}
-
-
-
-
-{% block content %}
+    {% endblock %}
 
 
 
-<div class="d-flex justify-content-between align-items-center mb-4">
+
+    {% block content %}
+
+
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
 
 
     <div>
 
-        <h2 class="fw-bold">
+    <h2 class="fw-bold">
 
-            Payments
+    Payments
 
-        </h2>
+    </h2>
 
 
-        <p class="text-muted">
+    <p class="text-muted">
 
-            Manage all chit fund collections
+    Manage all chit fund collections
 
-        </p>
+    </p>
 
 
     </div>
 
 
+
     <a href="{{ url_for('payments.create') }}"
-       class="btn btn-primary">
 
-        <i class="bi bi-plus-circle"></i>
+    class="btn btn-primary">
 
-        Collect Payment
+
+    <i class="bi bi-plus-circle"></i>
+
+    Collect Payment
+
 
     </a>
 
 
-</div>
+    </div>
 
 
 
 
 
 
-<div class="erp-card">
+    <div class="erp-card">
 
 
-<table class="table align-middle">
+    <div class="table-responsive">
 
 
-<thead>
+    <table class="table align-middle">
 
-<tr>
 
-<th>
-Receipt
-</th>
 
+    <thead>
 
-<th>
-Customer
-</th>
 
+    <tr>
 
-<th>
-Group
-</th>
 
+    <th>
+    Receipt
+    </th>
 
-<th>
-Installment
-</th>
 
+    <th>
+    Customer
+    </th>
 
-<th>
-Amount
-</th>
 
+    <th>
+    Amount
+    </th>
 
-<th>
-Payment Method
-</th>
 
+    <th>
+    Payment Method
+    </th>
 
-<th>
-Date
-</th>
 
+    <th>
+    Date
+    </th>
 
-</tr>
 
-</thead>
+    <th>
+    Actions
+    </th>
 
 
+    </tr>
 
 
+    </thead>
 
-<tbody>
 
 
 
-{% if payments %}
 
+    <tbody>
 
 
-{% for payment in payments %}
 
 
+    {% if payments %}
 
-<tr>
 
 
-<td>
+    {% for payment in payments %}
 
-{{ payment.receipt_number }}
 
-</td>
 
+    <tr>
 
 
 
+    <td>
 
-<td>
+    {{ payment.receipt_number }}
 
+    </td>
 
-{% if payment.installment 
-      and payment.installment.membership
-      and payment.installment.membership.customer %}
 
 
-{{ payment.installment.membership.customer.name }}
 
+    <td>
 
-{% else %}
+    {% if payment.customer %}
 
--
+    {{ payment.customer.name }}
 
-{% endif %}
+    {% else %}
 
+    -
 
-</td>
+    {% endif %}
 
+    </td>
 
 
 
 
 
+    <td>
 
-<td>
+    ₹{{ "{:,.0f}".format(payment.amount) }}
 
+    </td>
 
-{% if payment.installment
-      and payment.installment.membership
-      and payment.installment.membership.chit_group %}
 
 
-{{ payment.installment.membership.chit_group.name }}
 
 
-{% else %}
+    <td>
 
--
+    {{ payment.payment_method }}
 
-{% endif %}
+    </td>
 
 
 
-</td>
 
 
+    <td>
 
+    {{ payment.payment_date.strftime('%d-%b-%Y') }}
 
+    </td>
 
 
 
-<td>
 
 
-{% if payment.installment %}
+    <td>
 
 
-Month {{ payment.installment.installment_number }}
 
+    <a href="{{ url_for('payments.receipt', payment_id=payment.id) }}"
 
-{% else %}
+    class="btn btn-sm btn-info">
 
--
+    Receipt
 
-{% endif %}
+    </a>
 
 
 
-</td>
 
 
+    <form method="POST"
 
+    action="{{ url_for('payments.delete', payment_id=payment.id) }}"
 
+    style="display:inline;">
 
 
 
-<td>
+    <button
 
-₹{{ "{:,.0f}".format(payment.amount) }}
+    class="btn btn-sm btn-danger"
 
-</td>
+    onclick="return confirm('Delete this payment? This will reverse the installment payment.')">
 
 
+    <i class="bi bi-trash"></i>
 
+    Delete
 
 
+    </button>
 
 
-<td>
+    </form>
 
-{{ payment.payment_method }}
 
-</td>
 
+    </td>
 
 
 
+    </tr>
 
 
 
-<td>
 
-{{ payment.payment_date.strftime('%d-%b-%Y') }}
+    {% endfor %}
 
-</td>
 
 
 
+    {% else %}
 
 
-</tr>
+    <tr>
 
 
+    <td colspan="6"
 
-{% endfor %}
+    class="text-center text-muted">
 
 
+    No payments available
 
 
+    </td>
 
-{% else %}
 
+    </tr>
 
 
-<tr>
 
+    {% endif %}
 
-<td colspan="7"
-class="text-center text-muted">
 
 
-No payments available
 
+    </tbody>
 
-</td>
 
+    </table>
 
-</tr>
 
+    </div>
 
 
-{% endif %}
+    </div>
 
 
 
 
-
-</tbody>
-
-
-</table>
-
-
-</div>
-
-
-
-
-{% endblock %}
+    {% endblock %}
